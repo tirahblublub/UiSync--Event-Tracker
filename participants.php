@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Participants List - UiSync</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0d0d0d;
+      color: white;
+    }
+
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      padding: 20px;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                  url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .sidebar {
+      width: 90px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      height: 90vh;
+      flex-shrink: 0;
+    }
+
+    .UiSync {
+      font-weight: bold;
+      color: #facc15;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .menu a {
+      text-decoration: none;
+    }
+
+    .menu i {
+      width: 45px;
+      height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transition: 0.3s;
+      font-size: 18px;
+    }
+
+    .menu a:hover i,
+    .menu i.active {
+      background: #facc15 !important;
+      color: black !important;
+      transform: scale(1.05);
+    }
+
+    .content {
+      flex: 1;
+      padding-left: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .btn-add {
+      background: #facc15;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    .btn-add:hover {
+      background: #e0b800;
+    }
+
+    .table-container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+
+    .table {
+      color: white;
+      margin-bottom: 0;
+    }
+
+    .table th {
+      color: #facc15;
+      position: sticky;
+      top: 0;
+      background: #1a1a1a;
+      z-index: 1;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .table td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .status-confirmed {
+      background: rgba(25, 135, 84, 0.2);
+      color: #28d17c;
+      border: 1px solid rgba(25, 135, 84, 0.4);
+    }
+
+    .status-pending {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.4);
+    }
+
+    .btn-action {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin: 0 3px;
+      transition: 0.2s;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.4);
+    }
+
+    .btn-delete:hover {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-edit {
+      background: rgba(13, 110, 253, 0.2);
+      color: #0d6efd;
+      border: 1px solid rgba(13, 110, 253, 0.4);
+    }
+
+    .btn-edit:hover {
+      background: #0d6efd;
+      color: white;
+    }
+
+    .search-box {
+      margin-bottom: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.07);
+      color: white;
+    }
+
+    .search-box:focus {
+      background: #2a2a2a;
+      color: white;
+      border-color: #facc15;
+      box-shadow: none;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      color: white;
+      border: 1px solid rgba(255, 193, 7, 0.2);
+      border-radius: 15px;
+    }
+
+    .form-control, .form-select {
+      background: #2a2a2a;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control:focus, .form-select:focus {
+      background: #2a2a2a;
+      color: white;
+      border-color: #facc15;
+      box-shadow: none;
+    }
+
+    .form-select option {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px 0 0 0;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+      }
+      .UiSync {
+        margin-bottom: 0;
+      }
+      .menu {
+        flex-direction: row;
+      }
+      .menu i {
+        margin: 0 5px;
+      }
+      .content {
+        padding-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="hero-section">
+  <nav class="sidebar">
+    <div>
+      <div class="UiSync">UiSync</div>
+      <div class="menu">
+        <a href="dashboard.php" title="Dashboard">
+          <i class="bi bi-house-fill"></i>
+        </a>
+        <a href="event.php" title="Upcoming Events">
+          <i class="bi bi-calendar-event-fill"></i>
+        </a>
+        <a href="participants.php" title="Participants">
+          <i class="bi bi-people-fill active"></i>
+        </a>
+      </div>
+    </div>
+    <div class="menu">
+      <a href="#" onclick="logout()" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div>
+      <div class="topbar">
+        <h2>Participants (<span id="participant-count">0</span>)</h2>
+        <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addModal">
+          <i class="bi bi-plus-lg"></i> Add Participant
+        </button>
+      </div>
+
+      <input type="text" class="form-control search-box" id="searchInput"
+        placeholder="Search participants by name, email, role or status..." onkeyup="searchTable()">
+
+      <div class="table-container table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="text-secondary">
+      <p class="m-0">&copy; 2026 UiSync Event Tracker System. All Rights Reserved to Nur Athirah Fadhlin Mat Nawi.</p>
+      <small>IMS566 Advanced Web Design Development & Content Management</small>
+    </footer>
+  </main>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="m-0" style="color: #facc15; font-weight: bold;">Add Participant</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-0 mt-2">
+        <input id="name" class="form-control mt-2" placeholder="Name" required>
+        <input id="email" class="form-control mt-2" placeholder="Email" type="email" required>
+
+        <select id="role" class="form-select mt-2">
+          <option>Developer</option>
+          <option>Designer</option>
+          <option>Student</option>
+        </select>
+
+        <select id="status" class="form-select mt-2">
+          <option>Confirmed</option>
+          <option>Pending</option>
+        </select>
+
+        <button class="btn-add mt-3 w-100" onclick="addRow()">
+          Add Participant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  let currentCount = 16;
+
+  const sampleParticipants = [
+    { name: "Ahmad Razak", email: "ahmad.razak@gmail.com", role: "Developer", status: "Confirmed" },
+    { name: "Siti Nurhaliza", email: "siti.nur@gmail.com", role: "Designer", status: "Confirmed" },
+    { name: "Muhammad Farhan", email: "farhan.m@gmail.com", role: "Student", status: "Pending" },
+    { name: "Khairul Amin", email: "khairul.amin@gmail.com", role: "Developer", status: "Confirmed" },
+    { name: "Nur Aishah", email: "aishah.n@gmail.com", role: "Designer", status: "Confirmed" },
+    { name: "Abdul Rahman", email: "abdul.r@gmail.com", role: "Student", status: "Confirmed" },
+    { name: "Amirul Hakim", email: "amirul.h@gmail.com", role: "Developer", status: "Pending" },
+    { name: "Anis Syazwani", email: "anis.s@gmail.com", role: "Designer", status: "Confirmed" },
+    { name: "Mohamad Hafiz", email: "hafiz.m@gmail.com", role: "Student", status: "Confirmed" },
+    { name: "Farah Nadia", email: "farah.nadia@gmail.com", role: "Developer", status: "Confirmed" },
+    { name: "Zulkifli Idris", email: "zulkifli.i@gmail.com", role: "Designer", status: "Pending" },
+    { name: "Fatin Hamimah", email: "fatin.h@gmail.com", role: "Student", status: "Confirmed" },
+    { name: "Arif Mansor", email: "arif.m@gmail.com", role: "Developer", status: "Confirmed" },
+    { name: "Aiman Fitri", email: "aiman.f@gmail.com", role: "Designer", status: "Confirmed" },
+    { name: "Nadia Salim", email: "nadia.s@gmail.com", role: "Student", status: "Pending" }
+  ];
+
+  function generateInitialParticipants() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = ""; 
+    
+    sampleParticipants.forEach((p, index) => {
+      const idStr = String(index + 1).padStart(3, '0');
+      const tr = document.createElement("tr");
+      tr.id = "row-" + idStr;
+      tr.innerHTML = `
+        <td>#${idStr}</td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.email}</td>
+        <td>${p.role}</td>
+        <td>
+          <span class="status-badge ${p.status === "Confirmed" ? "status-confirmed" : "status-pending"}">${p.status}</span>
+        </td>
+        <td>
+          <button class="btn-action btn-edit" onclick="editRow('${tr.id}')" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn-action btn-delete" onclick="deleteRow('${tr.id}')" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    updateTotalCounter();
+  }
+
+  function updateTotalCounter() {
+    const currentRows = document.querySelectorAll("#tableBody tr").length;
+    document.getElementById("participant-count").innerText = currentRows;
+  }
+  
+  function addRow() {
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const roleInput = document.getElementById("role");
+    const statusInput = document.getElementById("status");
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const role = roleInput.value;
+    const status = statusInput.value;
+
+    if (!name || !email) return alert("Please fill in both Name and Email fields.");
+
+    const id = String(currentCount++).padStart(3, '0');
+    const row = document.createElement("tr");
+    row.id = "row-" + id;
+
+    row.innerHTML = `
+      <td>#${id}</td>
+      <td><strong>${name}</strong></td>
+      <td>${email}</td>
+      <td>${role}</td>
+      <td>
+        <span class="status-badge ${status === "Confirmed" ? "status-confirmed" : "status-pending"}">${status}</span>
+      </td>
+      <td>
+        <button class="btn-action btn-edit" onclick="editRow('${row.id}')" title="Edit">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn-action btn-delete" onclick="deleteRow('${row.id}')" title="Delete">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    `;
+
+    document.getElementById("tableBody").appendChild(row);
+
+    nameInput.value = "";
+    emailInput.value = "";
+    roleInput.selectedIndex = 0;
+    statusInput.selectedIndex = 0;
+
+    const modalEl = document.getElementById('addModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+    
+    updateTotalCounter();
+  }
+
+  function deleteRow(id) {
+    if (confirm("Are you sure you want to delete this participant?")) {
+      document.getElementById(id)?.remove();
+      updateTotalCounter();
+    }
+  }
+
+  function editRow(id) {
+    const row = document.getElementById(id);
+    const cells = row.getElementsByTagName("td");
+
+    const currentName = cells[1].innerText;
+    const currentEmail = cells[2].innerText;
+    const currentRole = cells[3].innerText;
+    const currentStatus = cells[4].innerText.trim();
+
+    const name = prompt("Edit Participant Name:", currentName);
+    if (name === null || name.trim() === "") return; 
+    
+    const email = prompt("Edit Participant Email:", currentEmail);
+    if (email === null || email.trim() === "") return;
+
+    const role = prompt("Edit Role (Developer / Designer / Student):", currentRole);
+    if (role === null) return;
+    
+    
+    const formattedRole = role.trim().charAt(0).toUpperCase() + role.trim().slice(1).toLowerCase();
+    if (!['Developer', 'Designer', 'Student'].includes(formattedRole)) {
+      alert("Error: Invalid role type. Please choose Developer, Designer, or Student.");
+      return;
+    }
+
+    const status = prompt("Edit Status (Confirmed / Pending):", currentStatus);
+    if (status === null) return;
+
+    
+    const formattedStatus = status.trim().charAt(0).toUpperCase() + status.trim().slice(1).toLowerCase();
+    if (!['Confirmed', 'Pending'].includes(formattedStatus)) {
+      alert("Error: Invalid status flag. Please enter Confirmed or Pending.");
+      return;
+    }
+
+    cells[1].innerHTML = `<strong>${name.trim()}</strong>`;
+    cells[2].innerText = email.trim();
+    cells[3].innerText = formattedRole;
+
+    const statusSpan = cells[4].querySelector('.status-badge');
+    if (statusSpan) {
+      statusSpan.textContent = formattedStatus;
+      statusSpan.classList.remove('status-confirmed', 'status-pending');
+      statusSpan.classList.add(formattedStatus === "Confirmed" ? 'status-confirmed' : 'status-pending');
+    }
+  }
+
+  function searchTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const tableBody = document.getElementById("tableBody");
+    const tr = tableBody.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      let rowVisible = false;
+      const td = tr[i].getElementsByTagName("td");
+      for (let j = 0; j < td.length; j++) {
+        const cellText = td[j].textContent || td[j].innerText;
+        if (cellText.toLowerCase().indexOf(filter) > -1) {
+          rowVisible = true;
+          break;
+        }
+      }
+      tr[i].style.display = rowVisible ? "" : "none";
+    }
+  }
+
+  function logout() {
+    if (confirm("Are you sure you want to log out?")) {
+      alert("Logout Successful.");
+      window.location.href = "index.html";
+    }
+  }
+
+  window.onload = generateInitialParticipants;
+</script>
+
+</body>
+</html>

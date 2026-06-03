@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Tracker Dashboard - UiSync</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0d0d0d;
+      overflow-y: auto; 
+      overflow-x: hidden;
+      color: white;
+    }
+
+    .dashboard {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                  url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .sidebar {
+      width: 90px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      height: 90vh;
+      flex-shrink: 0;
+    }
+
+    .UiSync {
+      font-weight: bold;
+      color: #facc15;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .menu a {
+      text-decoration: none;
+    }
+
+    .menu i {
+      width: 45px;
+      height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transition: 0.3s;
+      font-size: 18px;
+    }
+
+    .menu a:hover i,
+    .menu i.active {
+      background: #facc15 !important;
+      color: black !important;
+      transform: scale(1.05);
+    }
+
+    .main {
+      flex: 1;
+      width: 100%;
+      padding-left: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+
+    .profile-info {
+      text-align: right;
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #facc15;
+    }
+
+    .days {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .day-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      padding: 12px;
+      border-radius: 15px;
+      width: 75px;
+      text-align: center;
+      transition: 0.3s;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .day-card.active {
+      background: #facc15;
+      color: black;
+      font-weight: bold;
+    }
+
+    .day-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .chart-box {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 25px;
+      width: 100%;
+    }
+    
+    .main-chart {
+      height: 320px;
+    }
+
+    .sub-chart {
+      height: 240px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #facc15;
+    }
+
+    .cards {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .call-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      transition: 0.3s;
+      flex: 1 1 250px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .call-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .user img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(250, 204, 21, 0.4);
+    }
+
+    .call-card p {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #d1d5db;
+      text-align: left;
+    }
+
+    .right-panel {
+      width: 300px;
+      flex-shrink: 0;
+    }
+
+    .side-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .person {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .person:last-child {
+      margin-bottom: 0;
+    }
+
+    .employee-box {
+      background: linear-gradient(to bottom right, #facc15, #f59e0b);
+      color: black;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .employee-box h1 {
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .employee-box p {
+      font-weight: bold;
+      margin-bottom: 0;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width:992px) {
+      .dashboard { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; flex-direction: row; padding: 15px 20px; }
+      .UiSync { margin-bottom: 0; width: auto; }
+      .menu { flex-direction: row; }
+      .menu i { margin: 0 5px; }
+      .main { padding-left: 0; }
+      .topbar { margin-top: 10px; }
+      .right-panel { width: 100%; }
+    }
+
+    @media(max-width:576px) {
+      .dashboard { padding: 15px; }
+      .sidebar { flex-direction: column; gap: 15px; }
+      .menu { flex-wrap: wrap; justify-content: center; }
+      .title { font-size: 26px; }
+      .days { justify-content: center; }
+      .day-card { width: 65px; }
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px 0 0 0;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <nav class="sidebar">
+    <div>
+      <div class="UiSync">UiSync</div>
+      <div class="menu">
+        <a href="dashboard.php" title="Dashboard">
+          <i class="bi bi-house-fill active"></i>
+        </a>
+        <a href="event.php" title="Upcoming Events">
+          <i class="bi bi-calendar-event-fill"></i>
+        </a>
+        <a href="participants.php" title="Participants">
+          <i class="bi bi-people-fill"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="menu">
+      <a href="#" onclick="logout()" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <div></div>
+      <div class="profile-info">
+        <h6 class="m-0">Welcome, Administrator</h6>
+        <small class="text-warning"><i class="bi bi-shield-check me-1"></i>Main Portal</small>
+      </div>
+    </div>
+
+    <div class="title">Statistics</div>
+
+    <div class="days">
+      <div class="day-card" data-day="01">01<br>Sat</div>
+      <div class="day-card" data-day="02">02<br>Sun</div>
+      <div class="day-card" data-day="03">03<br>Mon</div>
+      <div class="day-card" data-day="04">04<br>Tue</div>
+      <div class="day-card" data-day="05">05<br>Wed</div>
+      <div class="day-card" data-day="06">06<br>Thu</div>
+      <div class="day-card" data-day="07">07<br>Fri</div>
+      <div class="day-card" data-day="08">08<br>Sat</div>
+      <div class="day-card active" data-day="09">09<br>Sun</div>
+    </div>
+
+    <div class="chart-box main-chart">
+      <h5 class="text-warning mb-3" style="font-size: 16px; font-weight: bold;">1. Hourly Attendance Flow (Line Chart)</h5>
+      <div style="position: relative; height: 230px; width: 100%;">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="chart-box sub-chart">
+          <h5 class="text-warning mb-2" style="font-size: 14px; font-weight: bold;">2. Attendance per Ongoing Event (Bar Chart)</h5>
+          <div style="position: relative; height: 180px; width: 100%;">
+            <canvas id="chartTwo"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-box sub-chart">
+          <h5 class="text-warning mb-2" style="font-size: 14px; font-weight: bold;">3. Dynamic Target vs Active Registration (Doughnut)</h5>
+          <div style="position: relative; height: 180px; width: 100%;">
+            <canvas id="chartThree"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-box sub-chart">
+          <h5 class="text-warning mb-2" style="font-size: 14px; font-weight: bold;">4. Overall Satisfaction Index (Pie Chart)</h5>
+          <div style="position: relative; height: 180px; width: 100%;">
+            <canvas id="chartFour"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-box sub-chart">
+          <h5 class="text-warning mb-2" style="font-size: 14px; font-weight: bold;">5. Active Venue Demands (Polar Area)</h5>
+          <div style="position: relative; height: 180px; width: 100%;">
+            <canvas id="chartFive"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Ongoing Events</div>
+    <div class="cards" id="ongoing-events-container"></div>
+  </main>
+
+  <aside class="right-panel">
+    <h4 class="mb-4 text-warning" style="font-weight: bold;">Upcoming Events</h4>
+
+    <div class="side-card">
+      <div class="person">
+        <div>
+          <h6 class="m-0">UI/UX WORKSHOP</h6>
+          <small class="text-secondary">14 Sept 2026</small>
+        </div>
+      </div>
+      <hr style="border-color: rgba(255,255,255,0.1)">
+      <div class="person">
+        <div>
+          <h6 class="m-0">DEV SEMINAR</h6>
+          <small class="text-secondary">15 Sept 2026</small>
+        </div>
+      </div>
+      <hr style="border-color: rgba(255,255,255,0.1)">
+      <div class="person">
+        <div>
+          <h6 class="m-0">TECH EXPO 2026</h6>
+          <small class="text-secondary">16 Sept 2026</small>
+        </div>
+      </div>
+      <hr style="border-color: rgba(255,255,255,0.1)">
+      <div class="person">
+        <div>
+          <h6 class="m-0">DESIGN WORKSHOP</h6>
+          <small class="text-secondary">16 Sept 2026</small>
+        </div>
+      </div>
+      <hr style="border-color: rgba(255,255,255,0.1)">
+      <div class="person">
+        <div>
+          <h6 class="m-0">CLOSING CEREMONY</h6>
+          <small class="text-secondary">17 Sept 2026</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="employee-box">
+      <h1 id="total-participants">+278k</h1>
+      <p>Event Participants</p>
+    </div>
+  </aside>
+</div>
+    
+<footer class="text-secondary">
+  <p class="m-0">&copy; 2026 UiSync Event Tracker System. All Rights Reserved to Nur Athirah Fadhlin Mat Nawi.</p>
+  <small>IMS566 Advanced Web Design Development & Content Management</small>
+</footer>
+
+<script>
+
+const dashboardData = {
+  "01": {
+    participants: "+165",
+    chartData: [0.5, 1.0, 1.5, 2.0, 1.8, 0.9, 2.2, 1.7, 1.9, 1.5, 1.2],
+    events: [
+      { title: "AI BootCamp", activeTime: "1h 15m active", count: 45, location: "Dewan Al-Farabi" },
+      { title: "Web Dev Hackathon", activeTime: "4h 00m active", count: 120, location: "Lab 3" }
+    ]
+  },
+  "02": {
+    participants: "+30",
+    chartData: [1.2, 2.2, 2.0, 1.5, 1.1, 0.8, 1.9, 2.1, 2.5, 2.0, 1.4],
+    events: [
+      { title: "Startup Pitching", activeTime: "2h 10m active", count: 30, location: "Chancellery Hall" }
+    ]
+  },
+  "03": {
+    participants: "+113",
+    chartData: [2.5, 2.9, 3.2, 3.5, 2.8, 1.5, 4.0, 3.2, 3.0, 2.5, 1.9],
+    events: [
+      { title: "Cybersecurity Forum", activeTime: "3h 45m active", count: 88, location: "DK 500" },
+      { title: "UI/UX Meetup", activeTime: "50m active", count: 25, location: "Library Lounge" }
+    ]
+  },
+  "04": {
+    participants: "+340",
+    chartData: [1.0, 1.5, 2.1, 2.8, 2.2, 1.0, 3.2, 2.9, 2.4, 1.8, 1.1],
+    events: [
+      { title: "Career Fair 2026", activeTime: "5h 20m active", count: 340, location: "Main Pavilion" }
+    ]
+  },
+  "05": {
+    participants: "+225",
+    chartData: [2.0, 2.2, 2.5, 2.7, 2.4, 1.1, 3.5, 2.8, 2.9, 2.1, 2.0],
+    events: [
+      { title: "Cloud Summit", activeTime: "1h 30m active", count: 75, location: "Cyber Center" },
+      { title: "E-Sports Tournament", activeTime: "7h 15m active", count: 150, location: "Student Center" }
+    ]
+  },
+  "06": {
+    participants: "+50",
+    chartData: [0.8, 1.2, 1.7, 2.2, 1.9, 0.7, 2.8, 2.0, 2.2, 1.6, 1.0],
+    events: [
+      { title: "Data Science Talk", activeTime: "2h 00m active", count: 50, location: "Dewan Kuliah A" }
+    ]
+  },
+  "07": {
+    participants: "+250",
+    chartData: [3.0, 3.2, 3.5, 3.9, 3.1, 2.0, 4.5, 3.8, 3.6, 3.0, 2.5],
+    events: [
+      { title: "Robotics Exhibition", activeTime: "4h 10m active", count: 210, location: "Engineering Block" },
+      { title: "IoT Workshop", activeTime: "2h 25m active", count: 40, location: "Smart Lab" }
+    ]
+  },
+  "08": {
+    participants: "+65",
+    chartData: [1.5, 1.9, 2.2, 2.5, 2.1, 1.3, 3.0, 2.4, 2.6, 2.1, 1.8],
+    events: [
+      { title: "Mobile App Pitch", activeTime: "3h 05m active", count: 65, location: "Incubator Hub" }
+    ]
+  },
+  "09": {
+    participants: "+121",
+    chartData: [2.0, 1.8, 2.4, 2.9, 2.5, 1.2, 3.8, 2.5, 2.8, 2.3, 2.7],
+    events: [
+      { title: "Tech Conference", activeTime: "2h 45m active", count: 34, location: "UiTM Hall", imgIndex: 11 },
+      { title: "Business Seminar", activeTime: "3h 10m active", count: 58, location: "Grand Hall", imgIndex: 12 },
+      { title: "Sports Carnival", activeTime: "6h 29m active", count: 29, location: "Stadium", imgIndex: 13 }
+    ]
+  }
+};
+
+const sharedOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } }
+};
+
+
+const ctx = document.getElementById('myChart');
+const myChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['7AM','8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM'],
+    datasets: [{
+      label: 'Attendance',
+      data: [], 
+      borderColor: '#facc15',
+      backgroundColor: 'rgba(250,204,21,0.15)',
+      fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#facc15'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: 'rgba(255, 255, 255, 0.6)' } },
+      x: { grid: { display: false }, ticks: { color: 'rgba(255, 255, 255, 0.6)' } }
+    }
+  }
+});
+
+
+const chartTwo = new Chart(document.getElementById('chartTwo'), {
+  type: 'bar',
+  data: { labels: [], datasets: [{ label: 'Participants', data: [], backgroundColor: '#facc15' }] },
+  options: {
+    ...sharedOptions,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'white' } },
+      x: { ticks: { color: 'white', font: { size: 10 } } }
+    }
+  }
+});
+
+
+const chartThree = new Chart(document.getElementById('chartThree'), {
+  type: 'doughnut',
+  data: { labels: ['Registered', 'Target Slot Left'], datasets: [{ data: [], backgroundColor: ['#34d399', 'rgba(255,255,255,0.1)'] }] },
+  options: sharedOptions
+});
+
+
+const chartFour = new Chart(document.getElementById('chartFour'), {
+  type: 'pie',
+  data: { labels: ['Excellent', 'Good', 'Neutral'], datasets: [{ data: [], backgroundColor: ['#facc15', '#60a5fa', '#f87171'] }] },
+  options: sharedOptions
+});
+
+
+const chartFive = new Chart(document.getElementById('chartFive'), {
+  type: 'polarArea',
+  data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+  options: {
+    ...sharedOptions,
+    scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { display: false } } }
+  }
+});
+
+
+function updateDashboardData(dayId) {
+  const dataSelected = dashboardData[dayId];
+  if (!dataSelected) return;
+
+  
+  document.getElementById('total-participants').innerText = dataSelected.participants;
+
+  
+  myChart.data.datasets[0].data = dataSelected.chartData;
+  myChart.update();
+
+  
+  const currentEvents = dataSelected.events;
+  const eventNames = currentEvents.map(e => e.title);
+  const eventCounts = currentEvents.map(e => e.count);
+  const eventLocations = currentEvents.map(e => e.location);
+  
+  
+  const totalActiveCount = eventCounts.reduce((a, b) => a + b, 0);
+
+  
+  chartTwo.data.labels = eventNames;
+  chartTwo.data.datasets[0].data = eventCounts;
+  chartTwo.data.datasets[0].backgroundColor = currentEvents.map((_, i) => i % 2 === 0 ? '#facc15' : '#f59e0b');
+  chartTwo.update();
+
+  
+  const targetSlots = 500;
+  const balanceSlots = targetSlots - totalActiveCount > 0 ? targetSlots - totalActiveCount : 50;
+  chartThree.data.datasets[0].data = [totalActiveCount, balanceSlots];
+  chartThree.update();
+
+  
+  const excellent = Math.round(totalActiveCount * 0.65);
+  const good = Math.round(totalActiveCount * 0.25);
+  const neutral = Math.round(totalActiveCount * 0.10);
+  chartFour.data.datasets[0].data = [excellent, good, neutral];
+  chartFour.update();
+
+  
+  chartFive.data.labels = eventLocations;
+  chartFive.data.datasets[0].data = eventCounts;
+  chartFive.data.datasets[0].backgroundColor = currentEvents.map((_, i) => {
+    const colors = ['rgba(250,204,21,0.6)', 'rgba(96,165,250,0.6)', 'rgba(52,211,153,0.6)'];
+    return colors[i % colors.length];
+  });
+  chartFive.update();
+
+  
+  const eventsContainer = document.getElementById('ongoing-events-container');
+  eventsContainer.innerHTML = ''; 
+
+  currentEvents.forEach((ev, index) => {
+    const imgId = ev.imgIndex ? ev.imgIndex : (15 + index + parseInt(dayId));
+    
+    const cardHtml = `
+      <div class="call-card">
+        <div class="user">
+          <img src="https://i.pravatar.cc/100?img=${imgId}" alt="Event Thumbnail">
+          <div>
+            <h5 class="m-0" style="font-size: 16px;">${ev.title}</h5>
+            <small class="text-warning">${ev.activeTime}</small>
+          </div>
+        </div>
+        <p><i class="bi bi-person-check text-warning me-2"></i> Participants: ${ev.count}</p>
+        <p><i class="bi bi-geo-alt text-warning me-2"></i> Location: ${ev.location}</p>
+      </div>
+    `;
+    eventsContainer.innerHTML += cardHtml;
+  });
+}
+
+
+document.querySelectorAll('.day-card').forEach(card => {
+  card.addEventListener('click', function() {
+    document.querySelector('.day-card.active').classList.remove('active');
+    this.classList.add('active');
+
+    const selectedDay = this.getAttribute('data-day');
+    updateDashboardData(selectedDay);
+  });
+});
+
+
+updateDashboardData("09");
+
+function logout() {
+  if (confirm("Are you sure you want to logout?")) {
+    alert("Logout Successful");
+    window.location.href = "index.html";
+  }
+}
+</script>
+</body>
+</html>
